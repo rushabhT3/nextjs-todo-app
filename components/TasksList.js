@@ -8,10 +8,10 @@ const TasksList = ({ tasks, onMarkCompleted, onDelete }) => {
         tasks.length > 0 &&
         tasks.map((task) => (
           <TaskItem
-            key={task.id}
+            key={task._id}
             task={task}
-            onMarkCompleted={() => onMarkCompleted(task.id)}
-            onDelete={() => onDelete(task.id)}
+            onMarkCompleted={() => onMarkCompleted(task._id)}
+            onDelete={() => onDelete(task._id)}
           />
         ))}
     </ul>

@@ -1,34 +1,64 @@
 import React, { useState } from "react";
 import Head from "next/head";
+import { MongoClient } from "mongodb";
 
 import TasksList from "../components/TasksList";
 import AddTaskForm from "../components/AddTaskForm";
 
-export default function HomePage() {
-  const [tasks, setTasks] = useState([]);
+export default function HomePage({ fetchedTasks }) {
+  const [tasks, setTasks] = useState(fetchedTasks);
 
-  const handleAddTask = (newTaskText) => {
+  const handleAddTask = async (newTaskText) => {
+    const response = await fetch("/api/tasks", {
+      method: "POST",
+      body: JSON.stringify({
+        text: newTaskText,
+        completed: false,
+      }),
+      headers: { "Content-Type": "application/json" },
+    });
+    const data = await response.json();
+    // console.log(data);
     setTasks((oldTasks) => [
       ...oldTasks,
-      { id: Date.now(), text: newTaskText, completed: false },
+      { id: data.insertedId, text: newTaskText, completed: false },
     ]);
   };
 
   // taskId got from below level
-  const handleMarkCompleted = (taskId) => {
-    setTasks((oldTasks) => {
-      return oldTasks.map((task) => {
-        return task.id == taskId
-          ? { ...task, completed: !task.completed }
-          : task;
-      });
+  const handleMarkCompleted = async (taskId) => {
+    const taskToComplete = tasks.find((task) => task._id === taskId);
+    const updatedTasks = tasks.map((task) =>
+      task._id === taskId
+        ? { ...task, completed: !taskToComplete.completed }
+        : task
+    );
+    setTasks(updatedTasks);
+
+    const response = await fetch("/api/tasks", {
+      method: "PUT",
+      body: JSON.stringify({
+        taskId: taskId,
+        completed: !taskToComplete.completed,
+      }),
+      headers: { "Content-Type": "application/json" },
     });
+    const data = await response.json();
+    console.log(data);
   };
 
-  const handleDelete = (taskId) => {
+  const handleDelete = async (taskId) => {
     setTasks((oldTasks) => {
-      return oldTasks.filter((task) => task.id != taskId);
+      return oldTasks.filter((task) => task._id != taskId);
     });
+    const response = await fetch("/api/tasks", {
+      method: "DELETE",
+      body: JSON.stringify({ taskId: taskId }),
+      headers: { "Content-Type": "application/json" },
+    });
+
+    const data = await response.json();
+    // console.log(data);
   };
 
   return (
@@ -49,4 +79,20 @@ export default function HomePage() {
       />
     </div>
   );
+}
+
+export async function getServerSideProps() {
+  const client = await MongoClient.connect(process.env.MONGODB_URL);
+  const db = client.db();
+
+  const tasksCollection = db.collection("tasks");
+  const tasks = await tasksCollection.find().toArray();
+
+  client.close();
+  // console.log(JSON.parse(JSON.stringify(tasks)));
+  return {
+    props: {
+      fetchedTasks: JSON.parse(JSON.stringify(tasks)),
+    },
+  };
 }
