@@ -1,6 +1,6 @@
 import React from "react";
 
-const TaskItem = ({ task, onMarkCompleted, onDelete }) => {
+const TaskItem = ({ task, onMarkCompleted, onDelete, onEdit }) => {
   return (
     <li
       className={`flex items-center justify-between py-4 px-4 rounded-lg border border-gray-200 shadow-sm ${
@@ -14,6 +14,12 @@ const TaskItem = ({ task, onMarkCompleted, onDelete }) => {
           className="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded-md"
         >
           Mark Completed
+        </button>
+        <button
+          onClick={() => onEdit(task._id)}
+          className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-md"
+        >
+          Edit
         </button>
         <button
           onClick={() => onDelete(task._id)}

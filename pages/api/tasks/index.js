@@ -11,7 +11,6 @@ async function handler(req, res) {
     const result = await tasksCollection.insertOne(data);
 
     client.close();
-
     res
       .status(201)
       .json({ message: "Task inserted.", insertedId: result.insertedId });
@@ -27,7 +26,6 @@ async function handler(req, res) {
     await tasksCollection.deleteOne({ _id: new ObjectId(taskId) });
 
     client.close();
-
     res.status(200).json({ message: "Task deleted." });
   }
 
@@ -44,7 +42,6 @@ async function handler(req, res) {
     );
 
     client.close();
-
     res.status(200).json({ message: "Task updated." });
   }
 }

@@ -1,11 +1,22 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
-const AddTaskForm = ({ onAddTask }) => {
-  const [newTaskText, setNewTaskText] = useState("");
+const AddTaskForm = ({ onAddTask, editingTask, onUpdateTask }) => {
+  const [newTaskText, setNewTaskText] = useState(
+    editingTask ? editingTask.text : ""
+  );
+
+  useEffect(() => {
+    setNewTaskText(editingTask ? editingTask.text : "");
+  }, [editingTask]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onAddTask(newTaskText);
+    if (editingTask) {
+      console.log(editingTask);
+      onUpdateTask(editingTask._id, newTaskText);
+    } else {
+      onAddTask(newTaskText);
+    }
     setNewTaskText("");
   };
 
